@@ -16,11 +16,24 @@ Resources:
       Tracing: Active
       Policies:
         - AWSXrayWriteOnlyAccess
+        - S3CrudPolicy:
+            BucketName: !Ref ReactAppHost
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref ReactAppHost
+          BUCKET_ARN: !GetAtt ReactAppHost.Arn
+          XDG_CONFIG_HOME: /tmp/.config
   deployFrontEndDeployTrigger:
     Type: Custom::FunctionDeployTrigger
     Properties:
       ServiceToken: !GetAtt deployFrontEnd.Arn
       DeploymentTimestamp: !Ref DeploymentTimestamp
+  ReactAppHost:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-reactapph-${AWS::AccountId}
+      WebsiteConfiguration:
+        IndexDocument: index.html
 Parameters:
   StackTagName:
     Type: String
